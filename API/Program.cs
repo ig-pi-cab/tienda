@@ -27,7 +27,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+	app.UseDeveloperExceptionPage();
 }
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -56,5 +58,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapControllerRoute(
+	name: "default",
+	pattern: "{controller = Home}/{action=Index}/{id?}");
 
 app.Run();
