@@ -1,15 +1,27 @@
 using API.Extensions;
+using AspNetCoreRateLimit;
 using Infraestructure.Data;
 using Infraestructure.Data.Csvs;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
+
+builder.Services.ConfigureRateLimitation();
 // Add services to the container.
 
 builder.Services.ConfigureCors();
+builder.Services.AddAplicacionServices();
+builder.Services.ConfigureApiVersioning();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+	options.RespectBrowserAcceptHeader = true;
+	options.ReturnHttpNotAcceptable = true;
+}).AddXmlSerializerFormatters(); //PERMITE SOPORTE DE FORMATO XML
 
 builder.Services.AddDbContext<TiendaContexto>(options =>
 {
@@ -22,12 +34,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseIpRateLimiting();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-	app.UseDeveloperExceptionPage();
 }
 
 
