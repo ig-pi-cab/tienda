@@ -19,6 +19,7 @@
 
   <ItemGroup>
 	  <None Include="Data\Csvs\**" CopyToOutputDirectory="PreserveNewest" />
+	  <None Include="Data\TiendaContextSeed.cs" />
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 

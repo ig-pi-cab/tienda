@@ -1,6 +1,7 @@
 ﻿using Core.Interfaces;
 using Infraestructure.Data;
 using Infraestructure.Repositories;
+using Infrastructure.Repositories;
 
 namespace Infrastructure.UnitOfWork;
 
@@ -10,6 +11,8 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private IProductoRepository _productos;
     private IMarcaRepository _marcas;
     private ICategoriaRepository _categorias;
+    private IRolRepository _roles;
+    private IUsuarioRepository _usuarios;
 
     public UnitOfWork(TiendaContexto context)
     {
@@ -49,6 +52,31 @@ public class UnitOfWork : IUnitOfWork, IDisposable
                 _productos = new ProductoRepository(_context);
             }
             return _productos;
+        }
+    }
+
+    public IRolRepository Roles
+    {
+        get
+        {
+            if (_roles == null)
+            {
+                _roles = new RolRepository(_context);
+            }
+            return _roles;
+        }
+    }
+
+
+    public IUsuarioRepository Usuarios
+    {
+        get
+        {
+            if (_usuarios == null)
+            {
+                _usuarios = new UsuarioRepository(_context);
+            }
+            return _usuarios;
         }
     }
 

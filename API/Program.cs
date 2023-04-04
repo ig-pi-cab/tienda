@@ -16,6 +16,7 @@ builder.Services.ConfigureRateLimitation();
 builder.Services.ConfigureCors();
 builder.Services.AddAplicacionServices();
 builder.Services.ConfigureApiVersioning();
+builder.Services.AddJwt(builder.Configuration);
 
 builder.Services.AddControllers(options =>
 {
@@ -53,6 +54,7 @@ using (var scope = app.Services.CreateScope())
 		var context = services.GetRequiredService<TiendaContexto>(); //
 		await context.Database.MigrateAsync(); // Aplicar de forma asyncrona cualquier migracion pendiente. Tambien agregar la base de datos si es que no existe.
 		await TiendaContextSeed.SeedAsync(context, loggerFactory);
+		await TiendaContextSeed.SeedRolesAsync(context, loggerFactory);
 	}
 	catch (Exception ex)
 	{
@@ -67,6 +69,8 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

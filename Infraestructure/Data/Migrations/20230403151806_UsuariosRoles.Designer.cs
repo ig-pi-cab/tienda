@@ -3,6 +3,7 @@ using System;
 using Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Data.Migrations
 {
     [DbContext(typeof(TiendaContexto))]
-    partial class TiendaContextoModelSnapshot : ModelSnapshot
+    [Migration("20230403151806_UsuariosRoles")]
+    partial class UsuariosRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,34 +84,6 @@ namespace Infraestructure.Data.Migrations
                     b.HasIndex("MarcaId");
 
                     b.ToTable("Producto", (string)null);
-                });
-
-            modelBuilder.Entity("Core.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("Revoked")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("token")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("RefreshToken", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.Rol", b =>
@@ -198,17 +173,6 @@ namespace Infraestructure.Data.Migrations
                     b.Navigation("Marca");
                 });
 
-            modelBuilder.Entity("Core.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("Core.Entities.Usuario", "Usuario")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("Core.Entities.UsuariosRoles", b =>
                 {
                     b.HasOne("Core.Entities.Rol", "Rol")
@@ -245,8 +209,6 @@ namespace Infraestructure.Data.Migrations
 
             modelBuilder.Entity("Core.Entities.Usuario", b =>
                 {
-                    b.Navigation("RefreshTokens");
-
                     b.Navigation("UsuariosRoles");
                 });
 #pragma warning restore 612, 618
