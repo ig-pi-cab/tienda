@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Helpers;
+using API.Helpers.Errors;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
@@ -58,7 +59,7 @@ public class ProductosController : BaseApiController
     {
         var producto = await _unitOfWork.Productos.GetByIdAsync(id);
         if (producto == null)
-            return NotFound();
+            return NotFound(new ApiResponse(404, "Producto solicitado no encontrado"));
 
         return _mapper.Map<ProductoDto>(producto);
     }
@@ -74,7 +75,7 @@ public class ProductosController : BaseApiController
         await _unitOfWork.SaveAsync();
         if (producto == null)
         {
-            return BadRequest();
+            return BadRequest(new ApiResponse(400));
         }
         productoDto.Id = producto.Id;
         return CreatedAtAction(nameof(Post), new { id = productoDto.Id }, productoDto);
@@ -89,23 +90,26 @@ public class ProductosController : BaseApiController
     public async Task<ActionResult<ProductoAddUpdateDto>> Put(int id, [FromBody] ProductoAddUpdateDto productoDto)
     {
         if (productoDto == null)
-            return NotFound();
+            return NotFound(new ApiResponse(404, "Producto solicitado no encontrado"));
+
+        //Rastreo segun contexto
+
 
         var producto = _mapper.Map<Producto>(productoDto);
         _unitOfWork.Productos.Update(producto);
         await _unitOfWork.SaveAsync();
         return productoDto;
     }
-
+        
     //delete: api/productos
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var producto = await _unitOfWork.Productos.GetByIdAsync(id);
         if (producto == null)
-            return NotFound();
+            return NotFound(new ApiResponse(404, "Producto solicitado no encontrado"));
 
         _unitOfWork.Productos.Remove(producto);
         await _unitOfWork.SaveAsync();

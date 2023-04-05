@@ -10,7 +10,7 @@ namespace Core.Entities
     {
         public int UsuarioId { get; set; }
         public Usuario Usuario { get; set;}
-        public string token { get; set; }
+        public string Token { get; set; }
         public DateTime Expires { get; set; }
         public bool IsExpired => DateTime.UtcNow >= Expires;
         public DateTime Created { get; set; }

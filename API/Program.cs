@@ -3,10 +3,23 @@ using AspNetCoreRateLimit;
 using Infraestructure.Data;
 using Infraestructure.Data.Csvs;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+var _logger = new LoggerConfiguration()
+	.ReadFrom.Configuration(builder.Configuration)
+	.Enrich.FromLogContext()
+	.CreateLogger();
+
+//Limpia proveedores, remueve mensajes 
+//builder.Logging.ClearProviders(); 
+
+
+//builder.Logging.AddSerilog(_logger);
 
 builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
 
@@ -34,6 +47,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+
+//Manejo global de excepciones
 
 app.UseIpRateLimiting();
 
