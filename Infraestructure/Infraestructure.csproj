@@ -14,12 +14,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
 	  <None Include="Data\Csvs\**" CopyToOutputDirectory="PreserveNewest" />
 	  <None Include="Data\TiendaContextSeed.cs" />
+	  <ProjectReference Include="..\ApiContracts\ApiContracts.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 

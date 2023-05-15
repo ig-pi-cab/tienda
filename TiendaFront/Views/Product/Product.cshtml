@@ -1,0 +1,27 @@
+﻿@model List<Product>
+
+<h2>Product List</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Marca</th>
+            <th>Categoria</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.id</td>
+                <td>@product.nombre</td>
+                <td>@product.precio.ToString("C2")</td>
+                <td>@product.marca.nombre</td>
+                <td>@product.categoria.nombre</td>
+            </tr>
+        }
+    </tbody>
+</table>

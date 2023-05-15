@@ -2,9 +2,12 @@ using API.Extensions;
 using AspNetCoreRateLimit;
 using Infraestructure.Data;
 using Infraestructure.Data.Csvs;
+using Infraestructure.ExternalApiService;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Reflection;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +33,10 @@ builder.Services.ConfigureCors();
 builder.Services.AddAplicacionServices();
 builder.Services.ConfigureApiVersioning();
 builder.Services.AddJwt(builder.Configuration);
+builder.Services.AddScoped<IExternalApiService, ExternalApiService>();
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddControllers(options =>
 {
@@ -44,7 +51,11 @@ builder.Services.AddDbContext<TiendaContexto>(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options=>
+{
+    options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+});
 
 var app = builder.Build();
 
@@ -54,11 +65,7 @@ var app = builder.Build();
 app.UseIpRateLimiting();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
 
 
 using (var scope = app.Services.CreateScope())
@@ -68,7 +75,7 @@ using (var scope = app.Services.CreateScope())
 	try
 	{
 		var context = services.GetRequiredService<TiendaContexto>(); //
-		await context.Database.MigrateAsync(); // Aplicar de forma asyncrona cualquier migracion pendiente. Tambien agregar la base de datos si es que no existe.
+		await context.Database.MigrateAsync(); // Aplicar de forma asincrona cualquier migracion pendiente. Tambien agregar la base de datos si es que no existe.
 		await TiendaContextSeed.SeedAsync(context, loggerFactory);
 		await TiendaContextSeed.SeedRolesAsync(context, loggerFactory);
 	}
@@ -95,5 +102,16 @@ app.MapControllers();
 app.MapControllerRoute(
 	name: "default",
 	pattern: "{controller = Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+		name: "dollar",
+		pattern: "api/dollar",
+        defaults: new { controller = "Dolar", action = "GetDollarExchangeRate" });
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.Run();
