@@ -22,11 +22,11 @@ namespace API.Controllers
         }
 
         [HttpPost("create")]
-        public ActionResult Create()
+        public ActionResult Create(int monto)
         {
             var buyOrder = "buyOrder_" + GetRandomNumber();
             var sessionId = "sessionId_" + GetRandomNumber();
-            var amount = 1000;
+            var amount = monto;
             var returnUrl = CreateUrl("webpay_plus", "Commit");
             var response = _transaction.Create(buyOrder, sessionId, amount, returnUrl);
 

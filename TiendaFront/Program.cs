@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TiendaFront.Services.ShoppingCart;
+//using TiendaFront.Services.ShoppingCart;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient(); // Add this line to register the IHttpClientFactory
 builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<ShoppingCartService>();
+//builder.Services.AddScoped<ShoppingCartService>();
 
 var app = builder.Build();
 
