@@ -10,6 +10,7 @@
             <th>Precio</th>
             <th>Marca</th>
             <th>Categoria</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -21,7 +22,30 @@
                 <td>@product.precio.ToString("C2")</td>
                 <td>@product.marca.nombre</td>
                 <td>@product.categoria.nombre</td>
+                <td>
+                    <button class="add-to-cart" data-product-id="@product.id">Add to Cart</button>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+<script>
+    $(function () {
+        // Add to Cart button click event
+        $('.add-to-cart').click(function () {
+            var productId = $(this).data('product-id');
+
+            // AJAX POST request to add product to cart
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Product")',
+                type: 'POST',
+                data: { id: productId },
+                success: function (data) {
+                    // Update cart count in UI
+                    $('#cart-count').text(data.cartItemCount);
+                }
+            });
+        });
+    });
+</script>

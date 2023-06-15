@@ -22,4 +22,14 @@ public class ProductService
 
         return products;
     }
+    public async Task<Product> GetProductById(int productId)
+    {
+        var response = await _httpClient.GetAsync($"https://localhost:5001/api/productos/{productId}");
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        var product = JsonSerializer.Deserialize<Product>(json);
+
+        return product;
+    }
 }
