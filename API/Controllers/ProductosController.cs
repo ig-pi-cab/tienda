@@ -16,11 +16,14 @@ public class ProductosController : BaseApiController
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
+
     public ProductosController(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
+
+  
 
     //[HttpGet]
     //[ProducesResponseType(StatusCodes.Status200OK)]
@@ -38,7 +41,7 @@ public class ProductosController : BaseApiController
     //                productParams.PageIndex, productParams.PageSize, productParams.Search);
 
     //}
-
+        
     [HttpGet]
     //[MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -49,6 +52,15 @@ public class ProductosController : BaseApiController
                                     .GetAllAsync();
 
         return _mapper.Map<List<ProductoDto>>(productos);
+    }
+
+    [HttpGet("mas-caros/{cantidad}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<Producto>>> GetProductosMasCaros(int cantidad)
+    {
+        var productosMasCaros = await _unitOfWork.Productos.GetProductosMasCaros(cantidad);
+        return Ok(productosMasCaros);
     }
 
     [HttpGet("{id}")]
@@ -93,8 +105,6 @@ public class ProductosController : BaseApiController
             return NotFound(new ApiResponse(404, "Producto solicitado no encontrado"));
 
         //Rastreo segun contexto
-
-
         var producto = _mapper.Map<Producto>(productoDto);
         _unitOfWork.Productos.Update(producto);
         await _unitOfWork.SaveAsync();

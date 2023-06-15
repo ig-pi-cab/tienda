@@ -1,0 +1,19 @@
+﻿<body>
+
+
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("MyAction", "Home")',
+            type: 'GET',
+            success: function (result) {
+                console.log(result);
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr.responseText);
+            }
+        });
+    });
+</script>
+</body>

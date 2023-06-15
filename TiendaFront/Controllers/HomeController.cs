@@ -9,6 +9,11 @@ namespace TiendaFront.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
+        public IActionResult MyAction()
+        {
+            return Json(new { message = "Hello, AJAX!" });
+        }
+
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;

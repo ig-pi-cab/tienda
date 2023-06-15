@@ -3,90 +3,90 @@ using Infraestructure.Data;
 using Infraestructure.Repositories;
 using Infrastructure.Repositories;
 
-namespace Infrastructure.UnitOfWork;
-
-public class UnitOfWork : IUnitOfWork, IDisposable
+namespace Infrastructure.UnitOfWork
 {
-    private readonly TiendaContexto _context;
-    private IProductoRepository _productos;
-    private IMarcaRepository _marcas;
-    private ICategoriaRepository _categorias;
-    private IRolRepository _roles;
-    private IUsuarioRepository _usuarios;
-
-    public UnitOfWork(TiendaContexto context)
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        _context = context;
-    }
+        private readonly TiendaContexto _context;
+        private IProductoRepository _productos;
+        private IMarcaRepository _marcas;
+        private ICategoriaRepository _categorias;
+        private IRolRepository _roles;
+        private IUsuarioRepository _usuarios;
 
-    public ICategoriaRepository Categorias
-    {
-        get
+        public UnitOfWork(TiendaContexto context)
         {
-            if (_categorias == null)
-            {
-                _categorias = new CategoriaRepository(_context);
-            }
-            return _categorias;
+            _context = context;
         }
-    }
 
-    public IMarcaRepository Marcas
-    {
-        get
+        public ICategoriaRepository Categorias
         {
-            if (_marcas == null)
+            get
             {
-                _marcas = new MarcaRepository(_context);
+                if (_categorias == null)
+                {
+                    _categorias = new CategoriaRepository(_context);
+                }
+                return _categorias;
             }
-            return _marcas;
         }
-    }
 
-    public IProductoRepository Productos
-    {
-        get
+        public IMarcaRepository Marcas
         {
-            if (_productos == null)
+            get
             {
-                _productos = new ProductoRepository(_context);
+                if (_marcas == null)
+                {
+                    _marcas = new MarcaRepository(_context);
+                }
+                return _marcas;
             }
-            return _productos;
         }
-    }
 
-    public IRolRepository Roles
-    {
-        get
+        public IProductoRepository Productos
         {
-            if (_roles == null)
+            get
             {
-                _roles = new RolRepository(_context);
+                if (_productos == null)
+                {
+                    _productos = new ProductoRepository(_context);
+                }
+                return _productos;
             }
-            return _roles;
         }
-    }
 
-
-    public IUsuarioRepository Usuarios
-    {
-        get
+        public IRolRepository Roles
         {
-            if (_usuarios == null)
+            get
             {
-                _usuarios = new UsuarioRepository(_context);
+                if (_roles == null)
+                {
+                    _roles = new RolRepository(_context);
+                }
+                return _roles;
             }
-            return _usuarios;
         }
-    }
 
-    public async Task<int> SaveAsync()
-    {
-        return await _context.SaveChangesAsync();
-    }
+        public IUsuarioRepository Usuarios
+        {
+            get
+            {
+                if (_usuarios == null)
+                {
+                    _usuarios = new UsuarioRepository(_context);
+                }
+                return _usuarios;
+            }
+        }
 
-    public void Dispose()
-    {
-        _context.Dispose();
+        public async Task<int> SaveAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
     }
 }
