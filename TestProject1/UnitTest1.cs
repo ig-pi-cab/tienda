@@ -20,6 +20,7 @@ namespace TestProject1
         private Mock<IUnitOfWork> unitOfWorkMock;
         private Mock<IMapper> mapperMock;
         private ProductosController controller;
+        
         //private DolarController dolarController;
 
         public UnitTest1()
@@ -30,6 +31,7 @@ namespace TestProject1
 
             // Create the controller object with the mock objects
             controller = new ProductosController(unitOfWorkMock.Object, mapperMock.Object);
+            
         }
 
         [Fact]
@@ -83,52 +85,111 @@ namespace TestProject1
             Assert.Null(okResult.Value); // Expecting null value
         }
 
-        //[Fact]
-        //public async Task Get_WithValidId_ReturnsOkObjectResult()
-        //{
-        //    // Arrange
-        //    int productId = 1;
-        //    var expectedProducto = new Producto
-        //    {
-        //        Id = 1,
-        //        Nombre = "d'Addario EJ27N Cuerda Guitarra Acústica",
-        //        Precio = 200.00m,
-        //        FechaCreacion = new DateTime(2022, 01, 01),
-        //        MarcaId = 1,
-        //        CategoriaId = 1,
-        //        Marca = new Marca { Id = 1, Nombre = "Addario" },
-        //        Categoria = new Categoria { Id = 1, Nombre = "Accesorios Guitarra" }
-        //    };
 
-        //    unitOfWorkMock.Setup(uow => uow.Productos.GetByIdAsync(productId)).ReturnsAsync(expectedProducto);
 
-        //    // Act
-        //    var result = await controller.Get(productId);
+        [Fact]
+        public async Task GetById_WithNoId_ReturnsNotFound()
+        {
+            // Arrange
+            int nonExistentId = 100; // Assuming this ID does not exist in the database
 
-        //    // Assert that the result is not null
-        //    Assert.NotNull(result);
+            unitOfWorkMock.Setup(uow => uow.Productos.GetByIdAsync(nonExistentId)).ReturnsAsync((Producto)null);
 
-        //    // Assert that the result is of type ActionResult<ProductoDto>
-        //    var actionResult = Assert.IsType<ActionResult<ProductoDto>>(result);
-        //    Assert.NotNull(actionResult);
+            // Act
+            var result = await controller.Get(nonExistentId);
 
-        //    // Assert that the value of the ActionResult is not null
-        //    var productoDto = actionResult.Value;
-        //    Assert.NotNull(productoDto);
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            var apiResponse = Assert.IsType<ApiResponse>(notFoundResult.Value);
 
-        //    // Perform the assertions on productoDto
-        //    Assert.Equal(expectedProducto.Id, productoDto.Id);
-        //    Assert.Equal(expectedProducto.Nombre, productoDto.Nombre);
-        //    Assert.Equal(expectedProducto.Precio, productoDto.Precio);
-        //    Assert.Equal(expectedProducto.FechaCreacion, productoDto.FechaCreacion);
-        //    Assert.Equal(expectedProducto.Marca.Id, productoDto.Marca.Id);
-        //    Assert.Equal(expectedProducto.Marca.Nombre, productoDto.Marca.Nombre);
-        //    Assert.Equal(expectedProducto.Categoria.Id, productoDto.Categoria.Id);
-        //    Assert.Equal(expectedProducto.Categoria.Nombre, productoDto.Categoria.Nombre);
+            Assert.Equal(404, notFoundResult.StatusCode);
+            Assert.Equal("Producto solicitado no encontrado", apiResponse.Message);
+        }
 
-        //}
 
-        
+
+        [Fact]
+        public async Task GetById_Returns_ProductoDto_When_ProductoExists()
+        {
+            // Arrange
+            var expectedId = 1;
+            var expectedNombre = "Product A";
+            var expectedPrecio = 10.99m;
+            var expectedFechaCreacion = new DateTime(2023, 1, 1);
+            var expectedMarca = new MarcaDto
+            {
+                Id = 1,
+                Nombre = "Marca A"
+                // Add any other properties specific to MarcaDto
+            };
+            var expectedCategoria = new CategoriaDto
+            {
+                Id = 1,
+                Nombre = "Categoria A"
+                // Add any other properties specific to CategoriaDto
+            };
+
+            unitOfWorkMock.Setup(uow => uow.Productos.GetByIdAsync(expectedId))
+                .ReturnsAsync(new Producto
+                {
+                    Id = expectedId,
+                    Nombre = expectedNombre,
+                    Precio = expectedPrecio,
+                    FechaCreacion = expectedFechaCreacion,
+                    Marca = new Marca
+                    {
+                        Id = expectedMarca.Id,
+                        Nombre = expectedMarca.Nombre
+                        // Add any other properties specific to Marca
+                    },
+                    Categoria = new Categoria
+                    {
+                        Id = expectedCategoria.Id,
+                        Nombre = expectedCategoria.Nombre
+                        // Add any other properties specific to Categoria
+                    }
+                });
+            unitOfWorkMock.Setup(uow => uow.Marcas.GetByIdAsync(expectedMarca.Id))
+                .ReturnsAsync(new Marca
+                {
+                    Id = expectedMarca.Id,
+                    Nombre = expectedMarca.Nombre
+                    // Add any other properties specific to Marca
+                });
+            unitOfWorkMock.Setup(uow => uow.Categorias.GetByIdAsync(expectedCategoria.Id))
+                .ReturnsAsync(new Categoria
+                {
+                    Id = expectedCategoria.Id,
+                    Nombre = expectedCategoria.Nombre
+                    // Add any other properties specific to Categoria
+                });
+
+            mapperMock.Setup(mapper => mapper.Map<ProductoDto>(It.IsAny<Producto>()))
+                .Returns<Producto>(producto => new ProductoDto
+                {
+                    Id = producto.Id,
+                    Nombre = producto.Nombre,
+                    Precio = producto.Precio,
+                    FechaCreacion = producto.FechaCreacion,
+                    Marca = expectedMarca,
+                    Categoria = expectedCategoria
+                });
+
+            // Act
+            var result = await controller.Get(expectedId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<ProductoDto>>(result);
+            var productoDto = Assert.IsType<ProductoDto>(result.Value);
+            Assert.Equal(expectedId, productoDto.Id);
+            Assert.Equal(expectedNombre, productoDto.Nombre);
+            Assert.Equal(expectedPrecio, productoDto.Precio);
+            Assert.Equal(expectedFechaCreacion, productoDto.FechaCreacion);
+            Assert.Equal(expectedMarca, productoDto.Marca);
+            Assert.Equal(expectedCategoria, productoDto.Categoria);
+
+        }
 
         [Fact]
         public async Task Post_ReturnsCreatedStatusAndProductoDto()
@@ -178,48 +239,129 @@ namespace TestProject1
             Assert.Equal(expectedProducto.CategoriaId, productoDto.CategoriaId);
         }
 
-        //[Fact]
-        //public async Task Post_ReturnsBadRequestForEmptyProducto()
-        //{
-        //    // Arrange
-        //    var requestDto = new ProductoAddUpdateDto();
+        [Fact]
+        public async Task Post_ReturnsCreatedStatusOrBadRequest()
+        {
+            // Arrange
+            ProductoAddUpdateDto requestDto = null; // Set the requestDto to null for an empty request
 
-        //    // Act
-        //    var result = await controller.Post(requestDto);
+            var expectedProducto = new Producto
+            {
+                Id = 32,
+                Nombre = "Witarra",
+                Precio = 33333,
+                FechaCreacion = new DateTime(2023, 03, 31),
+                MarcaId = 2,
+                CategoriaId = 2
+            };
 
-        //    // Assert
-        //    Assert.NotNull(result);
-        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        //    Assert.Equal(400, badRequestResult.StatusCode);
-        //    var errorResponse = Assert.IsType<Dictionary<string, List<string>>>(badRequestResult.Value);
-        //    Assert.NotNull(errorResponse);
-        //    Assert.Contains("Nombre", errorResponse.Keys);
-        //    var nombreErrors = errorResponse["Nombre"];
-        //    Assert.NotNull(nombreErrors);
-        //    Assert.NotEmpty(nombreErrors);
-        //    Assert.Equal("El nombre del producto es requerido.", nombreErrors[0]);
-        //}
+            // Create a mock of the repository interface
+            var productoRepositoryMock = new Mock<IProductoRepository>();
 
-        //[Fact]
-        //public async Task Post_WithNullProducto_ReturnsBadRequest()
-        //{
-        //    // Arrange
-        //    ProductoAddUpdateDto? requestDto = null;
+            // Set up the unitOfWorkMock to return the mocked repository object
+            unitOfWorkMock.Setup(uow => uow.Productos).Returns(productoRepositoryMock?.Object);
 
-        //    // Act
-        //    var result = await controller.Post(requestDto);
+            unitOfWorkMock.Setup(uow => uow.SaveAsync()).Returns(Task.FromResult(0));
 
-        //    // Assert
-        //    Assert.NotNull(result);
-        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        //    Assert.Equal(400, badRequestResult.StatusCode);
-        //    var apiResponse = Assert.IsType<ApiResponse>(badRequestResult.Value);
-        //    Assert.Equal(400, apiResponse.StatusCode);
-        //}
+            // Set up the mapper to return null for the mapping
+            mapperMock.Setup(mapper => mapper.Map<Producto>(It.IsAny<ProductoAddUpdateDto>())).Returns((Producto)null);
 
+            // Act
+            var result = await controller.Post(requestDto);
 
+            // Assert
+            Assert.NotNull(result);
+            var badRequestObjectResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal(400, badRequestObjectResult.StatusCode);
 
+            
+        }
 
+        [Fact]
+        public async Task Put_Producto_ReturnOkObjectResult()
+        {
+            // Arrange
+            int expectedId = 4;
+            ProductoAddUpdateDto expectedProductoDto = new ProductoAddUpdateDto
+            {
+                Id = expectedId,
+                Nombre = "Sample Product",
+                Precio = 10.99m,
+                FechaCreacion = DateTime.Now,
+                MarcaId = 1,
+                CategoriaId = 1
+            };
+
+            unitOfWorkMock.Setup(uow => uow.Productos.Update(It.IsAny<Producto>()));
+            unitOfWorkMock.Setup(uow => uow.SaveAsync());
+
+            // Act
+            var result = await controller.Put(expectedId, expectedProductoDto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<ActionResult<ProductoAddUpdateDto>>(result);
+            var updatedProductoDto = Assert.IsType<ProductoAddUpdateDto>(result.Value);
+            Assert.Equal(expectedProductoDto.Id, updatedProductoDto.Id);
+            Assert.Equal(expectedProductoDto.Nombre, updatedProductoDto.Nombre);
+            Assert.Equal(expectedProductoDto.Precio, updatedProductoDto.Precio);
+            Assert.Equal(expectedProductoDto.FechaCreacion, updatedProductoDto.FechaCreacion);
+            Assert.Equal(expectedProductoDto.MarcaId, updatedProductoDto.MarcaId);
+            Assert.Equal(expectedProductoDto.CategoriaId, updatedProductoDto.CategoriaId);
+        }
+
+        [Fact]
+        public async Task Put_ReturnsNotFound()
+        {
+            // Arrange
+            int id = 4;
+            ProductoAddUpdateDto productoDto = null; // Set the productoDto to null for an empty request
+
+            // Act
+            var result = await controller.Put(id, productoDto);
+
+            // Assert
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsNoContent()
+        {
+            // Arrange
+            int id = 4;
+
+            unitOfWorkMock.Setup(uow => uow.Productos.GetByIdAsync(id))
+                .ReturnsAsync(new Producto { Id = id });
+
+            unitOfWorkMock.Setup(uow => uow.SaveAsync()).Returns(Task.FromResult(0));
+
+            // Act
+            var result = await controller.Delete(id);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsNotFound()
+        {
+            // Arrange
+            int id = 4;
+
+            unitOfWorkMock.Setup(uow => uow.Productos.GetByIdAsync(id))
+                .ReturnsAsync((Producto)null);
+
+            // Act
+            var result = await controller.Delete(id);
+
+            // Assert
+            Assert.NotNull(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal(404, notFoundResult.StatusCode);
+        }
     }
 
 }
