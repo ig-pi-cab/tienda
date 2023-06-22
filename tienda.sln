@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TiendaFront", "TiendaFront\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedLibrary", "SharedLibrary\SharedLibrary.csproj", "{8ACF1FAB-A607-450D-8128-920B86D6C1DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{1DD1DC3B-860A-4A13-8EFB-009851D2DF91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tienda.Test", "TestProject1\Tienda.Test.csproj", "{1DD1DC3B-860A-4A13-8EFB-009851D2DF91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,15 +6,16 @@ using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 namespace API.Controllers;
 [ApiVersion("1.0")]
-[ApiVersion("1.1")]
+//[ApiVersion("1.1")]
 //[Authorize(Roles = "Administrador")]
 public class ProductosController : BaseApiController
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ILogger<ProductosController> _logger;
 
 
     public ProductosController(IUnitOfWork unitOfWork, IMapper mapper)
@@ -23,7 +24,7 @@ public class ProductosController : BaseApiController
         _mapper = mapper;
     }
 
-  
+
 
     //[HttpGet]
     //[ProducesResponseType(StatusCodes.Status200OK)]
@@ -41,17 +42,27 @@ public class ProductosController : BaseApiController
     //                productParams.PageIndex, productParams.PageSize, productParams.Search);
 
     //}
-        
+
     [HttpGet]
     //[MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<ProductoDto>>> Get()
     {
-        var productos = await _unitOfWork.Productos
-                                    .GetAllAsync();
+        try
+        {
+            _logger.LogInformation("Get() method called.");
 
-        return _mapper.Map<List<ProductoDto>>(productos);
+            var productos = await _unitOfWork.Productos.GetAllAsync();
+
+            _logger.LogInformation($"Retrieved: {productos}.");
+            return _mapper.Map<List<ProductoDto>>(productos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving products.");
+            return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse(500, "Internal Server Error"));
+        }
     }
 
     [HttpGet("mas-caros/{cantidad}")]
