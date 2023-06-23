@@ -4,14 +4,9 @@ using API.Helpers.Errors;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
-using Infraestructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace TestProject1
 {

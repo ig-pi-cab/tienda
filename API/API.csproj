@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Infraestructure\Infraestructure.csproj" />
+	  <InternalsVisibleTo Include="$(AssemblyName).Test"/>
   </ItemGroup>
 
 </Project>
