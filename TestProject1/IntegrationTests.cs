@@ -17,8 +17,8 @@ namespace Tienda.Test
 {
     public class IntegrationTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly string _connectionString = "Server=localhost;Port=3306;Database=tiendaBd;Uid=root;Pwd=admin;";
-        private readonly MySqlConnection _connection;
+
+
         private readonly WebApplicationFactory<Program> _factory;
         private readonly HttpClient _client;
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
@@ -36,8 +36,7 @@ namespace Tienda.Test
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _mapperMock = new Mock<IMapper>();
             _output = output;
-            _connection = new MySqlConnection(_connectionString);
-            _connection.Open();
+
         }
         
         
